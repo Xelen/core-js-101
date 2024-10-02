@@ -284,8 +284,17 @@ function reverseInteger(num) {
  *   5436468789016589 => false
  *   4916123456789012 => false
  */
-function isCreditCardNumber(/* ccn */) {
-  throw new Error('Not implemented');
+function isCreditCardNumber(ccn) {
+  const digits = String(ccn).split('').reverse().map(Number);
+  const checksum = digits.reduce((acc, digit, index) => {
+    let currentDigit = digit;
+    if (index % 2 !== 0) {
+      currentDigit *= 2;
+      if (currentDigit > 9) currentDigit -= 9;
+    }
+    return acc + currentDigit;
+  }, 0);
+  return checksum % 10 === 0;
 }
 
 /**
@@ -302,8 +311,15 @@ function isCreditCardNumber(/* ccn */) {
  *   10000 ( 1+0+0+0+0 = 1 ) => 1
  *   165536 (1+6+5+5+3+6 = 26,  2+6 = 8) => 8
  */
-function getDigitalRoot(/* num */) {
-  throw new Error('Not implemented');
+function getDigitalRoot(num) {
+  let currentNum = num;
+  while (currentNum > 9) {
+    currentNum = String(currentNum)
+      .split('')
+      .map(Number)
+      .reduce((acc, digit) => acc + digit, 0);
+  }
+  return currentNum;
 }
 
 /**
@@ -327,9 +343,28 @@ function getDigitalRoot(/* num */) {
  *   '{)' = false
  *   '{[(<{[]}>)]}' = true
  */
-function isBracketsBalanced(/* str */) {
-  throw new Error('Not implemented');
+function isBracketsBalanced(str) {
+  const bracketMap = {
+    '(': ')',
+    '[': ']',
+    '{': '}',
+    '<': '>',
+  };
+
+  const stack = str.split('').reduce((accumulator, char) => {
+    if (bracketMap[char]) {
+      accumulator.push(char);
+    } else if (Object.values(bracketMap).includes(char)) {
+      if (accumulator.length === 0 || bracketMap[accumulator.pop()] !== char) {
+        accumulator.push(null);
+      }
+    }
+    return accumulator;
+  }, []);
+
+  return stack.length === 0;
 }
+
 
 /**
  * Returns the string with n-ary (binary, ternary, etc, where n <= 10)
@@ -351,8 +386,25 @@ function isBracketsBalanced(/* str */) {
  *    365, 4  => '11231'
  *    365, 10 => '365'
  */
-function toNaryString(/* num, n */) {
-  throw new Error('Not implemented');
+function toNaryString(num, n) {
+  if (n < 2 || n > 10) {
+    throw new Error('Base n must be between 2 and 10');
+  }
+
+  if (num === 0) {
+    return '0';
+  }
+
+  let result = '';
+  let currentNum = num;
+
+  while (currentNum > 0) {
+    const remainder = currentNum % n;
+    result = remainder.toString() + result;
+    currentNum = Math.floor(currentNum / n);
+  }
+
+  return result;
 }
 
 /**
@@ -367,9 +419,25 @@ function toNaryString(/* num, n */) {
  *   ['/web/assets/style.css', '/.bin/mocha',  '/read.me'] => '/'
  *   ['/web/favicon.ico', '/web-scripts/dump', '/verbalizer/logs'] => '/'
  */
-function getCommonDirectoryPath(/* pathes */) {
-  throw new Error('Not implemented');
+function getCommonDirectoryPath(pathes) {
+  if (pathes.length === 0) return '';
+
+  const splitPaths = pathes.map((path) => path.split('/'));
+  const minLength = Math.min(...splitPaths.map((path) => path.length));
+  let commonPath = '';
+
+  for (let i = 0; i < minLength; i += 1) {
+    const currentSegment = splitPaths[0][i];
+    if (splitPaths.every((path) => path[i] === currentSegment)) {
+      commonPath += `${currentSegment}/`;
+    } else {
+      break;
+    }
+  }
+
+  return commonPath;
 }
+
 
 /**
  * Returns the product of two specified matrixes.
